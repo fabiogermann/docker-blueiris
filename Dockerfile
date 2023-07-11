@@ -23,7 +23,7 @@ ADD http://dl.winehq.org/wine/wine-gecko/2.47.1/wine-gecko-2.47.1-x86.msi $USRWI
 ADD https://dl.winehq.org/wine/wine-mono/5.1.0/wine-mono-5.1.0-x86.msi $USRWINE/mono
 
 RUN apt-get update && \
-    apt-get install -y wget gnupg software-properties-common winbind python python-numpy unzip jq curl && \
+    apt-get install -y wget gnupg software-properties-common winbind python3 python3-numpy unzip jq curl && \
     dpkg --add-architecture i386 && \
     wget -nc https://dl.winehq.org/wine-builds/winehq.key && \
     apt-key add winehq.key && \
