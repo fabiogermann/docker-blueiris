@@ -1,0 +1,11 @@
+---
+services:
+  app:
+    build: .
+    ports:
+      - 8080:8080
+    volumes:
+      - data:/config:rw
+      - /home/germann/Desktop:/root/Desktop:ro
+volumes:
+  data: 

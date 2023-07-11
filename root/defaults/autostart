@@ -8,7 +8,8 @@ if [ ! -d "/config/.wine/drive_c/Program Files/Blue Iris 5/" ]; then
 	wine reg.exe ADD "HKEY_CURRENT_USER\Software\Wine\X11 Driver" "/v" "UseXVidMode" "/t" "REG_SZ" "/d" "N"
 
 	# Install Blue Iris 5
-	msiexec /i /tmp/Blue\ Iris.msi /qn SETUPEXEDIR=%cd%
+	#msiexec /i /tmp/Blue\ Iris.msi /qn SETUPEXEDIR=%cd%
+	wine /tmp/blueiris.exe
 fi
 
 s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine /config/.wine/drive_c/Program\ Files/Blue\ Iris\ 5/BlueIris.exe
