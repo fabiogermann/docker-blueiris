@@ -14,7 +14,7 @@ ENV \
 
 # Install wine
 RUN \
- apt-get update && apt-get -y install wget cabextract fluxbox && \
+ apt-get update && apt-get -y install wget cabextract tzdata && \
  wget -qO - https://dl.winehq.org/wine-builds/winehq.key | apt-key add - && \
  dpkg --add-architecture i386 && \
  apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/ && \
@@ -26,10 +26,13 @@ RUN \
  wget -O /usr/bin/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks && \
  chmod +x /usr/bin/winetricks 
 
+RUN ln -fs /usr/share/zoneinfo/America/Montreal /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata
+
 COPY /root /
-RUN mkdir -p $HOME/.fluxbox && \
-    ln -s /menu $HOME/.fluxbox/menu
 
 RUN \
  wget -O /tmp/blueiris.exe https://blueirissoftware.com/blueiris.exe
 
+RUN mkdir /data
+VOLUME /data
