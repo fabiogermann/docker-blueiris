@@ -14,18 +14,22 @@ ENV \
 
 # Install wine
 RUN \
- apt-get update && apt-get -y install wget cabextract && \
+ apt-get update && apt-get -y install wget cabextract fluxbox && \
  wget -qO - https://dl.winehq.org/wine-builds/winehq.key | apt-key add - && \
  dpkg --add-architecture i386 && \
  apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/ && \
  add-apt-repository ppa:cybermax-dexter/sdl2-backport -y && \
  apt-get -y install --allow-unauthenticated --install-recommends winehq-stable
 
+# Install winetricks
 RUN \
  wget -O /usr/bin/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks && \
  chmod +x /usr/bin/winetricks 
 
+COPY /root /
+RUN mkdir -p $HOME/.fluxbox && \
+    ln -s /menu $HOME/.fluxbox/menu
+
 RUN \
  wget -O /tmp/blueiris.exe https://blueirissoftware.com/blueiris.exe
 
-COPY /root /
