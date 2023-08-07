@@ -33,4 +33,4 @@ fi
 wine net start blueiris || true
 sleep 5
 
-s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine ${BLUEIRIS_INSTALL_PATH}/BlueIris.exe
+s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe"
