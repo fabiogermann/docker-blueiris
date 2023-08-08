@@ -26,8 +26,8 @@ if [ ! -d "${BLUEIRIS_INSTALL_PATH}" ]; then
 	wine /tmp/blueiris.exe
 
 	if [ "$BLUEIRIS_VERSION" == "5" ]; then
-       unzip -o "${BLUEIRIS_INSTALL_PATH}/ui3.zip" -d "${BLUEIRIS_INSTALL_PATH}/www/"
-    fi
+            unzip -o "${BLUEIRIS_INSTALL_PATH}/ui3.zip" -d "${BLUEIRIS_INSTALL_PATH}/www/"
+        fi
 fi
 
 wine net start blueiris || true
