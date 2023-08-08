@@ -1,11 +1,25 @@
 ---
 services:
   app:
-    build: .
+    image: ghcr.io/fabiogermann/docker-blueiris:master
     ports:
       - 8080:8080
+      - 8881:81
     volumes:
-      - data:/config:rw
-      - /home/germann/Desktop:/root/Desktop:ro
+      - config:/config:rw
+      - data:/data:rw
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    devices:
+      - "/dev/dri/renderD128:/dev/dri/renderD128"
+    environment:
+      DRINODE: /dev/dri/renderD128
+      WINEDEBUG: -all
+      TZ: "America/Toronto"
+  ai:
+    image: codeproject/ai-server
+    ports:
+      - 32168:32168
 volumes:
-  data: 
+  config:
+  data:
