@@ -9,6 +9,8 @@ ENV WINEDLLOVERRIDES="mscoree="
 ENV \
 	CUSTOM_PORT="8080" \
 	GUIAUTOSTART="true" \
+ 	CUSTOM_USER="biuser" \
+  	DISABLE_IPV6="true" \
 	HOME="/config"
 
 
@@ -35,4 +37,5 @@ RUN \
  wget -O /tmp/blueiris.exe https://blueirissoftware.com/blueiris.exe
 
 RUN mkdir /data
+# another VOLUME from parent image is /config
 VOLUME /data
