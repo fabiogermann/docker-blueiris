@@ -13,15 +13,15 @@ if [ ! -d "${BLUEIRIS_INSTALL_PATH}" ]; then
 	wine reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment" /v PATHEXT /t REG_SZ /d ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;."	
 
 	# BI Service
-	# wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v Type /t REG_DWORD /d 16
-	# wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v Start /t REG_DWORD /d 2
-	# wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v ErrorControl /t REG_DWORD /d 1
-	# wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v ImagePath /t REG_SZ /d "C:\\Program Files\\Blue Iris 5\\BlueIris.exe"
-	# wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v DisplayName /t REG_SZ /d "Blue Iris Service"
-	# wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v ObjectName /t REG_SZ /d ".\\root"
-	# wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v DelayedAutostart /t REG_DWORD /d 0
-	# wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v Description /t REG_SZ /d "Video security software"
-	# wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v FailureActions /t REG_BINARY  /d "00000000000000000000000003000000140000000000000060ea00000000000060ea00000000000060ea0000"
+	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v Type /t REG_DWORD /d 16
+	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v Start /t REG_DWORD /d 2
+	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v ErrorControl /t REG_DWORD /d 1
+	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v ImagePath /t REG_SZ /d "C:\\Program Files\\Blue Iris 5\\BlueIris.exe"
+	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v DisplayName /t REG_SZ /d "Blue Iris Service"
+	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v ObjectName /t REG_SZ /d ".\\root"
+	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v DelayedAutostart /t REG_DWORD /d 0
+	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v Description /t REG_SZ /d "Video security software"
+	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v FailureActions /t REG_BINARY  /d "00000000000000000000000003000000140000000000000060ea00000000000060ea00000000000060ea0000"
 
 	# Install Blue Iris 5
 	#msiexec /i /tmp/Blue\ Iris.msi /qn SETUPEXEDIR=%cd%
