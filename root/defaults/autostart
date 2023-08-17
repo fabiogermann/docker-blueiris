@@ -27,6 +27,9 @@ if [ ! -d "${BLUEIRIS_INSTALL_PATH}" ]; then
 	#msiexec /i /tmp/Blue\ Iris.msi /qn SETUPEXEDIR=%cd%
 	wine /tmp/blueiris.exe
 
+	# Allow autoupdates
+	wine reg add "HKEY_CURRENT_USER\Software\Wine\DllOverrides" /v "*wininet" /t "REG_SZ" /d "builtin,native" /f
+
 	if [ "$BLUEIRIS_VERSION" == "5" ]; then
             unzip -o "${BLUEIRIS_INSTALL_PATH}/ui3.zip" -d "${BLUEIRIS_INSTALL_PATH}/www/"
         fi
