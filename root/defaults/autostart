@@ -3,9 +3,9 @@ BLUEIRIS_INSTALL_PATH="/config/.wine/drive_c/Program Files/Blue Iris ${BLUEIRIS_
 
 if [ ! -d "${BLUEIRIS_INSTALL_PATH}" ]; then
 	# Dependencies
-	/usr/bin/winetricks win10
-	/usr/bin/winetricks corefonts wininet urlmon
-	/usr/bin/winetricks vcrun2019 mfc42
+	/usr/bin/winetricks --force win10
+	/usr/bin/winetricks --force corefonts wininet urlmon
+	/usr/bin/winetricks --force vcrun2019 mfc42
 
 	# Fix X11 display output
 	wine reg.exe ADD "HKEY_CURRENT_USER\Software\Wine\X11 Driver" "/v" "UseXVidMode" "/t" "REG_SZ" "/d" "N"
