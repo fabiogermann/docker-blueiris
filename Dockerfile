@@ -16,7 +16,7 @@ ENV \
 
 # Install wine
 RUN \
- apt-get update && apt-get -y install unzip wget cabextract tzdata python3-xdg && \
+ apt-get update && apt-get -y upgrade && apt-get -y install unzip wget cabextract tzdata python3-xdg && \
  wget -qO - https://dl.winehq.org/wine-builds/winehq.key | apt-key add - && \
  dpkg --add-architecture i386 && \
  apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/ && \
