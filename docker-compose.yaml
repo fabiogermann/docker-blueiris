@@ -16,6 +16,8 @@ services:
       DRINODE: /dev/dri/renderD128
       WINEDEBUG: -all
       TZ: "America/Toronto"
+    cap_add:
+      - LINUX_IMMUTABLE
   ai:
     image: codeproject/ai-server
     ports:

@@ -32,7 +32,14 @@ if [ ! -d "${BLUEIRIS_INSTALL_PATH}" ]; then
 
 	if [ "$BLUEIRIS_VERSION" == "5" ]; then
             unzip -o "${BLUEIRIS_INSTALL_PATH}/ui3.zip" -d "${BLUEIRIS_INSTALL_PATH}/www/"
-        fi
+            sudo chattr +i "${BLUEIRIS_INSTALL_PATH}/www/login.htm"
+    fi
+fi
+
+# Fix issues on existing installs
+if [ -f "${BLUEIRIS_INSTALL_PATH}/www/xlogin.htm" ]; then
+	mv "${BLUEIRIS_INSTALL_PATH}/www/xlogin.htm" "${BLUEIRIS_INSTALL_PATH}/www/login.htm"
+	sudo chattr +i "${BLUEIRIS_INSTALL_PATH}/www/login.htm"
 fi
 
 wine net start blueiris || true
