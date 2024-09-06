@@ -19,8 +19,7 @@ RUN \
  wget -qO - https://dl.winehq.org/wine-builds/winehq.key | apt-key add - && \
  dpkg --add-architecture i386 && \
  apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/ && \
- add-apt-repository ppa:cybermax-dexter/sdl2-backport -y && \
- apt-get -y install --allow-unauthenticated --install-recommends winehq-stable
+ apt-get -y install --allow-unauthenticated --install-recommends winehq-devel
 
 # Install winetricks
 RUN \
