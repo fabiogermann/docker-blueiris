@@ -13,7 +13,6 @@ ENV \
   	DISABLE_IPV6="true" \
 	HOME="/config"
 
-
 # Install wine
 RUN \
  apt-get update && apt-get -y upgrade && apt-get -y install unzip wget cabextract tzdata python3-xdg && \
