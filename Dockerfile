@@ -18,6 +18,7 @@ RUN \
  apt-get update && apt-get -y upgrade && \
  apt-get -y install unzip wget cabextract tzdata python3-xdg \
  libvulkan1 mesa-vulkan-drivers libegl1 libgl1 libglu1-mesa \
+ libegl1-mesa libegl1-mesa-dev libgl1-mesa-dri \
  mesa-utils vulkan-tools net-tools procps && \
  wget -qO - https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /usr/share/keyrings/winehq-archive-keyring.gpg && \
  dpkg --add-architecture i386 && \

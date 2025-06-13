@@ -34,7 +34,22 @@ If you encounter this error after installation:
 4. **Restart container**: `docker-compose restart app`
 
 ### Debug Tools
-Use the included debug script for comprehensive diagnostics:
+
+#### Quick Service Check
+For a quick status check of Blue Iris:
+```bash
+./check-service.sh dc-blueiris-app-1
+```
+
+This provides a quick overview of:
+- Container status
+- Blue Iris process status
+- Network ports
+- Service status
+- Installation verification
+
+#### Comprehensive Diagnostics
+Use the included debug script for detailed diagnostics:
 ```bash
 ./debug-blueiris.sh dc-blueiris-app-1
 ```

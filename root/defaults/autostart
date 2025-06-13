@@ -98,19 +98,45 @@ fi
 
 # Enhanced service startup with retry logic
 log "Starting Blue Iris service..."
+
+# First, check if service is already running and stop it
+log "Checking existing service status..."
+wine net stop blueiris 2>/dev/null || log "No existing service to stop"
+sleep 2
+
+# Kill any existing Blue Iris processes
+log "Cleaning up existing Blue Iris processes..."
+pkill -f "BlueIris.exe" 2>/dev/null || log "No existing Blue Iris processes found"
+sleep 2
+
 SERVICE_START_ATTEMPTS=0
-MAX_SERVICE_ATTEMPTS=5
+MAX_SERVICE_ATTEMPTS=3
 
 while [ $SERVICE_START_ATTEMPTS -lt $MAX_SERVICE_ATTEMPTS ]; do
     SERVICE_START_ATTEMPTS=$((SERVICE_START_ATTEMPTS + 1))
     log "Service start attempt $SERVICE_START_ATTEMPTS of $MAX_SERVICE_ATTEMPTS"
     
     # Try to start the service
-    if wine net start blueiris; then
-        log "Blue Iris service started successfully"
-        break
+    SERVICE_OUTPUT=$(wine net start blueiris 2>&1)
+    SERVICE_EXIT_CODE=$?
+    
+    log "Service output: $SERVICE_OUTPUT"
+    
+    if [ $SERVICE_EXIT_CODE -eq 0 ] || echo "$SERVICE_OUTPUT" | grep -q "already running"; then
+        log "Blue Iris service is running"
+        
+        # Verify service is actually working by checking for process
+        sleep 5
+        if pgrep -f "BlueIris.exe" > /dev/null; then
+            log "Blue Iris service verified - process is running"
+            break
+        else
+            log "Service claims to be running but no process found, retrying..."
+            wine net stop blueiris 2>/dev/null || true
+            sleep 3
+        fi
     else
-        log "Service start attempt $SERVICE_START_ATTEMPTS failed"
+        log "Service start attempt $SERVICE_START_ATTEMPTS failed with exit code $SERVICE_EXIT_CODE"
         if [ $SERVICE_START_ATTEMPTS -lt $MAX_SERVICE_ATTEMPTS ]; then
             log "Waiting 10 seconds before retry..."
             sleep 10
@@ -129,6 +155,22 @@ if [ ! -f "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" ]; then
     handle_error "Blue Iris executable not found at ${BLUEIRIS_INSTALL_PATH}/BlueIris.exe"
 fi
 
-# Start Blue Iris application
-log "Starting Blue Iris application..."
-exec s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe"
+# Final check - if no Blue Iris process is running, start it directly
+if ! pgrep -f "BlueIris.exe" > /dev/null; then
+    log "No Blue Iris process detected, starting application directly..."
+    
+    # Try to start Blue Iris directly as a fallback
+    log "Starting Blue Iris application in direct mode..."
+    exec s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe"
+else
+    log "Blue Iris service is running, monitoring..."
+    
+    # Monitor the service and restart if it dies
+    while true; do
+        if ! pgrep -f "BlueIris.exe" > /dev/null; then
+            log "Blue Iris process died, restarting..."
+            wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" &
+        fi
+        sleep 30
+    done
+fi
