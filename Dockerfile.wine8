@@ -21,18 +21,18 @@ RUN \
  libgl1-mesa-dri mesa-utils vulkan-tools net-tools procps \
  software-properties-common gnupg2 && \
  \
- # Add Wine repository
+ # Add Wine repository (using jammy for wine-8.0.2 availability)
  wget -qO - https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /usr/share/keyrings/winehq-archive-keyring.gpg && \
  dpkg --add-architecture i386 && \
- echo "deb [signed-by=/usr/share/keyrings/winehq-archive-keyring.gpg] https://dl.winehq.org/wine-builds/ubuntu/ noble main" > /etc/apt/sources.list.d/winehq.list && \
+ echo "deb [signed-by=/usr/share/keyrings/winehq-archive-keyring.gpg] https://dl.winehq.org/wine-builds/ubuntu/ jammy main" > /etc/apt/sources.list.d/winehq.list && \
  apt-get update && \
  \
- # Try to install wine-8.0.2 specifically, fallback to available version
+ # Try to install wine-8.0.2 specifically from jammy repository
  (apt-get -y install --install-recommends \
-   winehq-stable=8.0.2~noble-1 \
-   wine-stable=8.0.2~noble-1 \
-   wine-stable-amd64=8.0.2~noble-1 \
-   wine-stable-i386=8.0.2~noble-1 || \
+   winehq-stable=8.0.2~jammy-1 \
+   wine-stable=8.0.2~jammy-1 \
+   wine-stable-amd64=8.0.2~jammy-1 \
+   wine-stable-i386=8.0.2~jammy-1 || \
   apt-get -y install --install-recommends winehq-stable || \
   apt-get -y install --install-recommends winehq-staging) && \
  \
