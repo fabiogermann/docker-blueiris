@@ -71,7 +71,33 @@ if [ ! -d "${BLUEIRIS_INSTALL_PATH}" ]; then
         handle_error "Blue Iris installer not found at /tmp/blueiris.exe"
     fi
     
-    wine /tmp/blueiris.exe || handle_error "Blue Iris installation failed"
+    # Set Wine environment for better installer compatibility
+    export WINEDEBUG=-all,+dll,+ntlm
+    export WINEPREFIX=/config/.wine
+    
+    # Try to install Blue Iris with better error handling
+    log "Starting Blue Iris installer (this may take several minutes)..."
+    if ! wine /tmp/blueiris.exe; then
+        log "WARNING: Blue Iris installer exited with error, checking if installation succeeded..."
+        
+        # Check if Blue Iris was actually installed despite the error
+        if [ -f "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" ]; then
+            log "Blue Iris executable found - installation may have succeeded despite error"
+        else
+            # Try alternative installation approach
+            log "Attempting alternative installation with different Wine settings..."
+            export WINEDEBUG=-all
+            export WINEDLLOVERRIDES="mscoree,mshtml="
+            
+            if ! wine /tmp/blueiris.exe; then
+                log "Alternative installation also failed, but continuing..."
+                log "Blue Iris may need to be installed manually"
+            fi
+        fi
+    fi
+    
+    # Reset Wine debug settings
+    export WINEDEBUG=-all
 
     # Allow autoupdates
     log "Configuring autoupdates..."

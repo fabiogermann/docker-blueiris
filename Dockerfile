@@ -13,18 +13,21 @@ ENV \
   	DISABLE_IPV6="true" \
 	HOME="/config"
 
+# Update to latest
+RUN \
+ apt-get update && apt-get -y upgrade
+
 # Install wine-8.0.2 from jammy repository and graphics dependencies
 RUN \
- apt-get update && apt-get -y upgrade && \
  apt-get -y install unzip wget cabextract tzdata python3-xdg \
  libvulkan1 mesa-vulkan-drivers libegl1 libgl1 libglu1-mesa \
- libgl1-mesa-dri mesa-utils vulkan-tools net-tools procps && \
+ libgl1-mesa-dri mesa-utils vulkan-tools net-tools procps \
+ winbind samba-common-bin libnss-winbind && \
  wget -qO - https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /usr/share/keyrings/winehq-archive-keyring.gpg && \
  dpkg --add-architecture i386 && \
  echo "deb [signed-by=/usr/share/keyrings/winehq-archive-keyring.gpg] https://dl.winehq.org/wine-builds/ubuntu/ jammy main" > /etc/apt/sources.list.d/winehq.list && \
  apt-get update && \
- apt-get -y install --install-recommends winehq-stable=8.0.2~jammy-1 wine-stable=8.0.2~jammy-1 wine-stable-amd64=8.0.2~jammy-1 wine-stable-i386=8.0.2~jammy-1 || \
- apt-get -y install --install-recommends winehq-stable
+ apt-get -y install --install-recommends winehq-stable=8.0.2~jammy-1 wine-stable=8.0.2~jammy-1 wine-stable-amd64=8.0.2~jammy-1 wine-stable-i386=8.0.2~jammy-1
 
 # Install winetricks
 RUN \
