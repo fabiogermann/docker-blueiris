@@ -16,8 +16,8 @@ TOKEN="TELEGRAM_TOKEN"
 flock $fd #lock file by filedescriptor
 
 echo $$ locking: /tmp/output.gif
-ffmpeg -i ${LATEST_IMAGE} -vf "fps=5,scale=640:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" -loop 0 /tmp/output.gif
-curl -X POST -H "Content-Type:multipart/form-data" -F chat_id=$CHAT_ID -F photo=@/tmp/output.gif "https://api.telegram.org/bot$TOKEN/sendPhoto"
+ffmpeg -i ${LATEST_IMAGE} -vf "fps=2,scale=520:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" -loop 0 /tmp/output.gif
+curl -X POST -H "Content-Type:multipart/form-data" -F chat_id=$CHAT_ID -F animation=@/tmp/output.gif "https://api.telegram.org/bot$TOKEN/sendAnimation"
 rm /tmp/output.gif
 echo $$ releasing lock: /tmp/output.gif
 

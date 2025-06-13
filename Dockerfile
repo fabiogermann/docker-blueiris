@@ -19,7 +19,7 @@ RUN \
 
 # Install dependencies
 RUN \
- apt-get -y install unzip wget cabextract tzdata python3-xdg
+ apt-get -y install unzip wget cabextract tzdata python3-xdg vim ffmpeg
 # apt-get -y install unzip wget cabextract tzdata python3-xdg \
 # libvulkan1 mesa-vulkan-drivers libegl1 libgl1 libglu1-mesa \
 # libgl1-mesa-dri mesa-utils vulkan-tools net-tools procps \

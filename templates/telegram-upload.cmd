@@ -1,2 +1,2 @@
 :: redirect to bash script
-cmd /c start /unix /config/.wine/drive_c/BlueIris/Telegram-Upload/upload.sh
+cmd /c start /unix /config/.wine/drive_c/BlueIris/Telegram-Upload/telegram-upload.sh
