@@ -67,6 +67,7 @@ if [ ! -d "${BLUEIRIS_INSTALL_PATH}" ]; then
 
     # Install Blue Iris 5
     log "Installing Blue Iris..."
+    wget -O /tmp/blueiris.exe https://blueirissoftware.com/blueiris.exe
     if [ ! -f "/tmp/blueiris.exe" ]; then
         handle_error "Blue Iris installer not found at /tmp/blueiris.exe"
     fi
