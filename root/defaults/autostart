@@ -134,108 +134,111 @@ fi
 
 # Enhanced service startup with retry logic
 log "Starting Blue Iris service..."
+wine net start blueiris || true
+sleep 5
 
-# First, check if service is already running and stop it
-log "Checking existing service status..."
-wine net stop blueiris 2>/dev/null || log "No existing service to stop"
-sleep 2
+s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe"
+# # First, check if service is already running and stop it
+# log "Checking existing service status..."
+# wine net stop blueiris 2>/dev/null || log "No existing service to stop"
+# sleep 2
 
-# Kill any existing Blue Iris processes
-log "Cleaning up existing Blue Iris processes..."
-pkill -f "BlueIris.exe" 2>/dev/null || log "No existing Blue Iris processes found"
-sleep 2
+# # Kill any existing Blue Iris processes
+# log "Cleaning up existing Blue Iris processes..."
+# pkill -f "BlueIris.exe" 2>/dev/null || log "No existing Blue Iris processes found"
+# sleep 2
 
-SERVICE_START_ATTEMPTS=0
-MAX_SERVICE_ATTEMPTS=3
+# SERVICE_START_ATTEMPTS=0
+# MAX_SERVICE_ATTEMPTS=3
 
-while [ $SERVICE_START_ATTEMPTS -lt $MAX_SERVICE_ATTEMPTS ]; do
-    SERVICE_START_ATTEMPTS=$((SERVICE_START_ATTEMPTS + 1))
-    log "Service start attempt $SERVICE_START_ATTEMPTS of $MAX_SERVICE_ATTEMPTS"
+# while [ $SERVICE_START_ATTEMPTS -lt $MAX_SERVICE_ATTEMPTS ]; do
+#     SERVICE_START_ATTEMPTS=$((SERVICE_START_ATTEMPTS + 1))
+#     log "Service start attempt $SERVICE_START_ATTEMPTS of $MAX_SERVICE_ATTEMPTS"
     
-    # Try to start the service
-    SERVICE_OUTPUT=$(wine net start blueiris 2>&1)
-    SERVICE_EXIT_CODE=$?
+#     # Try to start the service
+#     SERVICE_OUTPUT=$(wine net start blueiris 2>&1)
+#     SERVICE_EXIT_CODE=$?
     
-    log "Service output: $SERVICE_OUTPUT"
+#     log "Service output: $SERVICE_OUTPUT"
     
-    if [ $SERVICE_EXIT_CODE -eq 0 ] || echo "$SERVICE_OUTPUT" | grep -q "already running"; then
-        log "Blue Iris service start command succeeded"
+#     if [ $SERVICE_EXIT_CODE -eq 0 ] || echo "$SERVICE_OUTPUT" | grep -q "already running"; then
+#         log "Blue Iris service start command succeeded"
         
-        # Wait longer for the process to stabilize
-        log "Waiting for Blue Iris process to start..."
-        WAIT_COUNT=0
-        while [ $WAIT_COUNT -lt 30 ]; do
-            if pgrep -f "BlueIris.exe" > /dev/null; then
-                log "Blue Iris service verified - process is running"
-                break 2  # Break out of both loops
-            fi
-            sleep 2
-            WAIT_COUNT=$((WAIT_COUNT + 1))
-            log "Waiting for process... ($((WAIT_COUNT * 2))s)"
-        done
+#         # Wait longer for the process to stabilize
+#         log "Waiting for Blue Iris process to start..."
+#         WAIT_COUNT=0
+#         while [ $WAIT_COUNT -lt 30 ]; do
+#             if pgrep -f "BlueIris.exe" > /dev/null; then
+#                 log "Blue Iris service verified - process is running"
+#                 break 2  # Break out of both loops
+#             fi
+#             sleep 2
+#             WAIT_COUNT=$((WAIT_COUNT + 1))
+#             log "Waiting for process... ($((WAIT_COUNT * 2))s)"
+#         done
         
-        log "Service started but process not found after 60 seconds, retrying..."
-        wine net stop blueiris 2>/dev/null || true
-        sleep 5
-    else
-        log "Service start attempt $SERVICE_START_ATTEMPTS failed with exit code $SERVICE_EXIT_CODE"
-        if [ $SERVICE_START_ATTEMPTS -lt $MAX_SERVICE_ATTEMPTS ]; then
-            log "Waiting 10 seconds before retry..."
-            sleep 10
-        else
-            log "WARNING: All service start attempts failed, continuing with direct execution"
-        fi
-    fi
-done
+#         log "Service started but process not found after 60 seconds, retrying..."
+#         wine net stop blueiris 2>/dev/null || true
+#         sleep 5
+#     else
+#         log "Service start attempt $SERVICE_START_ATTEMPTS failed with exit code $SERVICE_EXIT_CODE"
+#         if [ $SERVICE_START_ATTEMPTS -lt $MAX_SERVICE_ATTEMPTS ]; then
+#             log "Waiting 10 seconds before retry..."
+#             sleep 10
+#         else
+#             log "WARNING: All service start attempts failed, continuing with direct execution"
+#         fi
+#     fi
+# done
 
-# Wait for service to stabilize
-log "Waiting for service to stabilize..."
-sleep 10
+# # Wait for service to stabilize
+# log "Waiting for service to stabilize..."
+# sleep 10
 
-# Check if Blue Iris executable exists
-if [ ! -f "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" ]; then
-    handle_error "Blue Iris executable not found at ${BLUEIRIS_INSTALL_PATH}/BlueIris.exe"
-fi
+# # Check if Blue Iris executable exists
+# if [ ! -f "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" ]; then
+#     handle_error "Blue Iris executable not found at ${BLUEIRIS_INSTALL_PATH}/BlueIris.exe"
+# fi
 
-# Final check - if no Blue Iris process is running, start it directly
-if ! pgrep -f "BlueIris.exe" > /dev/null; then
-    log "No Blue Iris process detected, starting application directly..."
+# # Final check - if no Blue Iris process is running, start it directly
+# if ! pgrep -f "BlueIris.exe" > /dev/null; then
+#     log "No Blue Iris process detected, starting application directly..."
     
-    # Set Wine environment for better service compatibility
-    export WINEDEBUG=-all
-    export WINEPREFIX=/config/.wine
+#     # Set Wine environment for better service compatibility
+#     export WINEDEBUG=-all
+#     export WINEPREFIX=/config/.wine
     
-    # Try to start Blue Iris directly as a fallback
-    log "Starting Blue Iris application in direct mode..."
+#     # Try to start Blue Iris directly as a fallback
+#     log "Starting Blue Iris application in direct mode..."
     
-    # Start Blue Iris in background and monitor
-    s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" &
-    BLUEIRIS_PID=$!
+#     # Start Blue Iris in background and monitor
+#     s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" &
+#     BLUEIRIS_PID=$!
     
-    log "Blue Iris started with PID $BLUEIRIS_PID, monitoring..."
+#     log "Blue Iris started with PID $BLUEIRIS_PID, monitoring..."
     
-    # Monitor the process and restart if it dies
-    while true; do
-        if ! kill -0 $BLUEIRIS_PID 2>/dev/null; then
-            log "Blue Iris process died, restarting..."
-            s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" &
-            BLUEIRIS_PID=$!
-            log "Blue Iris restarted with PID $BLUEIRIS_PID"
-        fi
-        sleep 30
-    done
-else
-    log "Blue Iris service is running, monitoring..."
+#     # Monitor the process and restart if it dies
+#     while true; do
+#         if ! kill -0 $BLUEIRIS_PID 2>/dev/null; then
+#             log "Blue Iris process died, restarting..."
+#             s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" &
+#             BLUEIRIS_PID=$!
+#             log "Blue Iris restarted with PID $BLUEIRIS_PID"
+#         fi
+#         sleep 30
+#     done
+# else
+#     log "Blue Iris service is running, monitoring..."
     
-    # Monitor the service and restart if it dies
-    while true; do
-        if ! pgrep -f "BlueIris.exe" > /dev/null; then
-            log "Blue Iris process died, attempting service restart..."
-            if ! wine net start blueiris; then
-                log "Service restart failed, starting directly..."
-                s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" &
-            fi
-        fi
-        sleep 30
-    done
-fi
+#     # Monitor the service and restart if it dies
+#     while true; do
+#         if ! pgrep -f "BlueIris.exe" > /dev/null; then
+#             log "Blue Iris process died, attempting service restart..."
+#             if ! wine net start blueiris; then
+#                 log "Service restart failed, starting directly..."
+#                 s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" &
+#             fi
+#         fi
+#         sleep 30
+#     done
+# fi
