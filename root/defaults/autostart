@@ -43,6 +43,11 @@ if [ ! -d "${BLUEIRIS_INSTALL_PATH}" ]; then
     wine reg add "HKEY_CURRENT_USER\Software\Wine\X11 Driver" /v "Managed" /t REG_SZ /d "Y" /f
     wine reg add "HKEY_CURRENT_USER\Software\Wine\Drivers" /v Audio /t REG_SZ /d "" "/f"
     wine reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment" /v PATHEXT /t REG_SZ /d ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;." "/f"
+    
+    # Additional Wine service configuration for better stability
+    log "Configuring Wine service settings..."
+    wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control" /v "ServicesPipeTimeout" /t REG_DWORD /d 180000 /f
+    wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control" /v "WaitToKillServiceTimeout" /t REG_SZ /d "30000" /f
 
     # Enhanced BI Service configuration
     log "Configuring Blue Iris service..."
@@ -123,18 +128,24 @@ while [ $SERVICE_START_ATTEMPTS -lt $MAX_SERVICE_ATTEMPTS ]; do
     log "Service output: $SERVICE_OUTPUT"
     
     if [ $SERVICE_EXIT_CODE -eq 0 ] || echo "$SERVICE_OUTPUT" | grep -q "already running"; then
-        log "Blue Iris service is running"
+        log "Blue Iris service start command succeeded"
         
-        # Verify service is actually working by checking for process
+        # Wait longer for the process to stabilize
+        log "Waiting for Blue Iris process to start..."
+        WAIT_COUNT=0
+        while [ $WAIT_COUNT -lt 30 ]; do
+            if pgrep -f "BlueIris.exe" > /dev/null; then
+                log "Blue Iris service verified - process is running"
+                break 2  # Break out of both loops
+            fi
+            sleep 2
+            WAIT_COUNT=$((WAIT_COUNT + 1))
+            log "Waiting for process... ($((WAIT_COUNT * 2))s)"
+        done
+        
+        log "Service started but process not found after 60 seconds, retrying..."
+        wine net stop blueiris 2>/dev/null || true
         sleep 5
-        if pgrep -f "BlueIris.exe" > /dev/null; then
-            log "Blue Iris service verified - process is running"
-            break
-        else
-            log "Service claims to be running but no process found, retrying..."
-            wine net stop blueiris 2>/dev/null || true
-            sleep 3
-        fi
     else
         log "Service start attempt $SERVICE_START_ATTEMPTS failed with exit code $SERVICE_EXIT_CODE"
         if [ $SERVICE_START_ATTEMPTS -lt $MAX_SERVICE_ATTEMPTS ]; then
@@ -159,17 +170,40 @@ fi
 if ! pgrep -f "BlueIris.exe" > /dev/null; then
     log "No Blue Iris process detected, starting application directly..."
     
+    # Set Wine environment for better service compatibility
+    export WINEDEBUG=-all
+    export WINEPREFIX=/config/.wine
+    
     # Try to start Blue Iris directly as a fallback
     log "Starting Blue Iris application in direct mode..."
-    exec s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe"
+    
+    # Start Blue Iris in background and monitor
+    wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" &
+    BLUEIRIS_PID=$!
+    
+    log "Blue Iris started with PID $BLUEIRIS_PID, monitoring..."
+    
+    # Monitor the process and restart if it dies
+    while true; do
+        if ! kill -0 $BLUEIRIS_PID 2>/dev/null; then
+            log "Blue Iris process died, restarting..."
+            wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" &
+            BLUEIRIS_PID=$!
+            log "Blue Iris restarted with PID $BLUEIRIS_PID"
+        fi
+        sleep 30
+    done
 else
     log "Blue Iris service is running, monitoring..."
     
     # Monitor the service and restart if it dies
     while true; do
         if ! pgrep -f "BlueIris.exe" > /dev/null; then
-            log "Blue Iris process died, restarting..."
-            wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" &
+            log "Blue Iris process died, attempting service restart..."
+            if ! wine net start blueiris; then
+                log "Service restart failed, starting directly..."
+                wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" &
+            fi
         fi
         sleep 30
     done

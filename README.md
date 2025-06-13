@@ -30,8 +30,22 @@ If you encounter this error after installation:
 
 1. **Check startup logs**: `docker exec -it <container> cat /config/blueiris-startup.log`
 2. **Run debug script**: `./debug-blueiris.sh <container_name>`
-3. **Manual service start**: `docker exec -it <container> wine net start blueiris`
-4. **Restart container**: `docker-compose restart app`
+3. **Test Wine version compatibility**: `./test-wine8.sh`
+4. **Manual service start**: `docker exec -it <container> wine net start blueiris`
+5. **Restart container**: `docker-compose restart app`
+
+### Wine Version Compatibility Testing
+If you have a working setup with Wine 8.0.2, you can test if the issue is Wine version related:
+
+```bash
+./test-wine8.sh
+```
+
+This script will:
+- Test installation of Wine 8.0.2 specifically
+- Compare behavior with your working Wine 8.0.2 setup
+- Provide detailed diagnostics about Wine version compatibility
+- Help isolate whether the issue is Wine version related
 
 ### Debug Tools
 
