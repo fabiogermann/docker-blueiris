@@ -1,48 +1,134 @@
+#!/bin/bash
+
+# Enhanced Blue Iris startup script with better error handling and debugging
+set -e
+
 BLUEIRIS_VERSION=5
 BLUEIRIS_INSTALL_PATH="/config/.wine/drive_c/Program Files/Blue Iris ${BLUEIRIS_VERSION}"
+LOG_FILE="/config/blueiris-startup.log"
+
+# Logging function
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+# Error handling function
+handle_error() {
+    log "ERROR: $1"
+    exit 1
+}
+
+log "Starting Blue Iris initialization..."
+
+# Check if Wine is working
+if ! wine --version > /dev/null 2>&1; then
+    handle_error "Wine is not working properly"
+fi
+
+log "Wine version: $(wine --version)"
 
 if [ ! -d "${BLUEIRIS_INSTALL_PATH}" ]; then
-	# Dependencies
-	/usr/bin/winetricks --force win10
-	/usr/bin/winetricks --force corefonts wininet urlmon
-	/usr/bin/winetricks --force vcrun2019 mfc42
+    log "Blue Iris not found, starting installation..."
+    
+    # Dependencies with better error handling
+    log "Installing Wine dependencies..."
+    /usr/bin/winetricks --force win10 || handle_error "Failed to install win10"
+    /usr/bin/winetricks --force corefonts wininet urlmon || handle_error "Failed to install core fonts and internet components"
+    /usr/bin/winetricks --force vcrun2019 mfc42 || handle_error "Failed to install Visual C++ runtime"
 
-	# Fix X11 display output
-	wine reg.exe ADD "HKEY_CURRENT_USER\Software\Wine\X11 Driver" "/v" "UseXVidMode" "/t" "REG_SZ" "/d" "N" "/f"
-        wine reg add "HKEY_CURRENT_USER\Software\Wine\Drivers" /v Audio /t REG_SZ /d "" "/f"
-	wine reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment" /v PATHEXT /t REG_SZ /d ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;." "/f"	
+    # Enhanced graphics and display configuration
+    log "Configuring Wine graphics settings..."
+    wine reg.exe ADD "HKEY_CURRENT_USER\Software\Wine\X11 Driver" "/v" "UseXVidMode" "/t" "REG_SZ" "/d" "N" "/f"
+    wine reg add "HKEY_CURRENT_USER\Software\Wine\X11 Driver" /v "UseTakeFocus" /t REG_SZ /d "N" /f
+    wine reg add "HKEY_CURRENT_USER\Software\Wine\X11 Driver" /v "Managed" /t REG_SZ /d "Y" /f
+    wine reg add "HKEY_CURRENT_USER\Software\Wine\Drivers" /v Audio /t REG_SZ /d "" "/f"
+    wine reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment" /v PATHEXT /t REG_SZ /d ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;." "/f"
 
-	# BI Service
-	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v Type /t REG_DWORD /d 16 /f
-	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v Start /t REG_DWORD /d 2 /f
-	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v ErrorControl /t REG_DWORD /d 1 /f
-	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v ImagePath /t REG_SZ /d "C:\\Program Files\\Blue Iris 5\\BlueIris.exe" /f
-	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v DisplayName /t REG_SZ /d "Blue Iris Service" /f
-	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v ObjectName /t REG_SZ /d ".\\root" /f
-	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v DelayedAutostart /t REG_DWORD /d 0 /f
-	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v Description /t REG_SZ /d "Video security software" /f
-	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v FailureActions /t REG_BINARY  /d "00000000000000000000000003000000140000000000000060ea00000000000060ea00000000000060ea0000" /f
+    # Enhanced BI Service configuration
+    log "Configuring Blue Iris service..."
+    wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v Type /t REG_DWORD /d 16 /f
+    wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v Start /t REG_DWORD /d 2 /f
+    wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v ErrorControl /t REG_DWORD /d 1 /f
+    wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v ImagePath /t REG_SZ /d "C:\\Program Files\\Blue Iris 5\\BlueIris.exe" /f
+    wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v DisplayName /t REG_SZ /d "Blue Iris Service" /f
+    wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v ObjectName /t REG_SZ /d ".\\root" /f
+    wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v DelayedAutostart /t REG_DWORD /d 0 /f
+    wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v Description /t REG_SZ /d "Video security software" /f
+    wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v FailureActions /t REG_BINARY /d "00000000000000000000000003000000140000000000000060ea00000000000060ea00000000000060ea0000" /f
+    
+    # Additional service configuration for better compatibility
+    wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v ServiceSidType /t REG_DWORD /d 1 /f
+    wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v RequiredPrivileges /t REG_MULTI_SZ /d "SeServiceLogonRight" /f
 
-	# Install Blue Iris 5
-	#msiexec /i /tmp/Blue\ Iris.msi /qn SETUPEXEDIR=%cd%
-	wine /tmp/blueiris.exe
-
-	# Allow autoupdates
-	wine reg add "HKEY_CURRENT_USER\Software\Wine\DllOverrides" /v "*wininet" /t "REG_SZ" /d "builtin,native" /f
-
-	if [ "$BLUEIRIS_VERSION" == "5" ]; then
-            unzip -o "${BLUEIRIS_INSTALL_PATH}/ui3.zip" -d "${BLUEIRIS_INSTALL_PATH}/www/"
-            sudo chattr +i "${BLUEIRIS_INSTALL_PATH}/www/login.htm"
+    # Install Blue Iris 5
+    log "Installing Blue Iris..."
+    if [ ! -f "/tmp/blueiris.exe" ]; then
+        handle_error "Blue Iris installer not found at /tmp/blueiris.exe"
     fi
+    
+    wine /tmp/blueiris.exe || handle_error "Blue Iris installation failed"
+
+    # Allow autoupdates
+    log "Configuring autoupdates..."
+    wine reg add "HKEY_CURRENT_USER\Software\Wine\DllOverrides" /v "*wininet" /t "REG_SZ" /d "builtin,native" /f
+
+    if [ "$BLUEIRIS_VERSION" == "5" ]; then
+        log "Extracting UI3 web interface..."
+        if [ -f "${BLUEIRIS_INSTALL_PATH}/ui3.zip" ]; then
+            unzip -o "${BLUEIRIS_INSTALL_PATH}/ui3.zip" -d "${BLUEIRIS_INSTALL_PATH}/www/" || log "WARNING: Failed to extract UI3"
+            if [ -f "${BLUEIRIS_INSTALL_PATH}/www/login.htm" ]; then
+                sudo chattr +i "${BLUEIRIS_INSTALL_PATH}/www/login.htm" || log "WARNING: Failed to set immutable flag on login.htm"
+            fi
+        else
+            log "WARNING: ui3.zip not found"
+        fi
+    fi
+    
+    log "Blue Iris installation completed"
+else
+    log "Blue Iris installation found, skipping installation"
 fi
 
 # Fix issues on existing installs
 if [ -f "${BLUEIRIS_INSTALL_PATH}/www/xlogin.htm" ]; then
-	mv "${BLUEIRIS_INSTALL_PATH}/www/xlogin.htm" "${BLUEIRIS_INSTALL_PATH}/www/login.htm"
-	sudo chattr +i "${BLUEIRIS_INSTALL_PATH}/www/login.htm"
+    log "Fixing login.htm file..."
+    mv "${BLUEIRIS_INSTALL_PATH}/www/xlogin.htm" "${BLUEIRIS_INSTALL_PATH}/www/login.htm"
+    sudo chattr +i "${BLUEIRIS_INSTALL_PATH}/www/login.htm" || log "WARNING: Failed to set immutable flag"
 fi
 
-wine net start blueiris || true
-sleep 5
+# Enhanced service startup with retry logic
+log "Starting Blue Iris service..."
+SERVICE_START_ATTEMPTS=0
+MAX_SERVICE_ATTEMPTS=5
 
-s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe"
+while [ $SERVICE_START_ATTEMPTS -lt $MAX_SERVICE_ATTEMPTS ]; do
+    SERVICE_START_ATTEMPTS=$((SERVICE_START_ATTEMPTS + 1))
+    log "Service start attempt $SERVICE_START_ATTEMPTS of $MAX_SERVICE_ATTEMPTS"
+    
+    # Try to start the service
+    if wine net start blueiris; then
+        log "Blue Iris service started successfully"
+        break
+    else
+        log "Service start attempt $SERVICE_START_ATTEMPTS failed"
+        if [ $SERVICE_START_ATTEMPTS -lt $MAX_SERVICE_ATTEMPTS ]; then
+            log "Waiting 10 seconds before retry..."
+            sleep 10
+        else
+            log "WARNING: All service start attempts failed, continuing with direct execution"
+        fi
+    fi
+done
+
+# Wait for service to stabilize
+log "Waiting for service to stabilize..."
+sleep 10
+
+# Check if Blue Iris executable exists
+if [ ! -f "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe" ]; then
+    handle_error "Blue Iris executable not found at ${BLUEIRIS_INSTALL_PATH}/BlueIris.exe"
+fi
+
+# Start Blue Iris application
+log "Starting Blue Iris application..."
+exec s6-envdir -fn -- /var/run/s6/container_environment /usr/bin/wine "${BLUEIRIS_INSTALL_PATH}/BlueIris.exe"

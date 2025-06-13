@@ -13,13 +13,17 @@ ENV \
   	DISABLE_IPV6="true" \
 	HOME="/config"
 
-# Install wine
+# Install wine and graphics dependencies
 RUN \
- apt-get update && apt-get -y upgrade && apt-get -y install unzip wget cabextract tzdata python3-xdg && \
- wget -qO - https://dl.winehq.org/wine-builds/winehq.key | apt-key add - && \
+ apt-get update && apt-get -y upgrade && \
+ apt-get -y install unzip wget cabextract tzdata python3-xdg \
+ libvulkan1 libegl1-mesa libgl1-mesa-glx libglu1-mesa \
+ mesa-utils vulkan-tools net-tools procps && \
+ wget -qO - https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /usr/share/keyrings/winehq-archive-keyring.gpg && \
  dpkg --add-architecture i386 && \
- apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/ && \
- apt-get -y install --allow-unauthenticated --install-recommends winehq-devel
+ echo "deb [signed-by=/usr/share/keyrings/winehq-archive-keyring.gpg] https://dl.winehq.org/wine-builds/ubuntu/ noble main" > /etc/apt/sources.list.d/winehq.list && \
+ apt-get update && \
+ apt-get -y install --install-recommends winehq-devel
 
 # Install winetricks
 RUN \

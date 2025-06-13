@@ -11,8 +11,47 @@ OTA updates work without issues, BI license required.
 ## Add-ons
 - Backup clips to S3 via FTP (also supports glacier): use the docker image: [fabiogermann/ftp-proxy-s3](https://github.com/fabiogermann/ftp-proxy-s3) 
 
+## Recent Updates
+
+### Ubuntu Noble Migration (2025-06)
+This project has been updated to use the latest `ghcr.io/linuxserver/baseimage-kasmvnc:ubuntunoble` base image. Key improvements include:
+
+- **Enhanced Service Startup**: Improved Blue Iris Windows service startup with retry logic
+- **Better Graphics Support**: Added Vulkan and OpenGL libraries for improved compatibility
+- **Comprehensive Logging**: Detailed startup logs available at `/config/blueiris-startup.log`
+- **Debug Tools**: New debugging script for troubleshooting issues
+
+See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for detailed migration information and troubleshooting.
+
+## Troubleshooting
+
+### "Console could not connect to service process" Error
+If you encounter this error after installation:
+
+1. **Check startup logs**: `docker exec -it <container> cat /config/blueiris-startup.log`
+2. **Run debug script**: `./debug-blueiris.sh <container_name>`
+3. **Manual service start**: `docker exec -it <container> wine net start blueiris`
+4. **Restart container**: `docker-compose restart app`
+
+### Debug Tools
+Use the included debug script for comprehensive diagnostics:
+```bash
+./debug-blueiris.sh dc-blueiris-app-1
+```
+
+This will generate a detailed report including:
+- System and Wine information
+- Graphics capabilities
+- Service status
+- Process information
+- Network configuration
+- Blue Iris installation status
+
 ## Known Issues
 - The Timezone of the UI timeline is always in UTC (the timestamps in the video feed however is in the correct/configured time zone).
 - Sometimes the UI freeses for a short time and clicks will not be registered. To "unblock" the UI you can run `docker exec -it dc-blueiris-app-1 bash -c "sudo -u abc wine explorer"` and close the explorer, the UI should be unblocked now.
 
-For any other issue please feel free to open a GitHub issue.
+For any other issue please feel free to open a GitHub issue with:
+- Output from the debug script
+- Container logs (`docker-compose logs app`)
+- System information (OS, Docker version, hardware)
