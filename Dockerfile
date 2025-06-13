@@ -19,18 +19,20 @@ RUN \
 
 # Install dependencies
 RUN \
- apt-get -y install unzip wget cabextract tzdata python3-xdg \
- libvulkan1 mesa-vulkan-drivers libegl1 libgl1 libglu1-mesa \
- libgl1-mesa-dri mesa-utils vulkan-tools net-tools procps \
- winbind samba-common-bin libnss-winbind
+ apt-get -y install unzip wget cabextract tzdata python3-xdg
+# apt-get -y install unzip wget cabextract tzdata python3-xdg \
+# libvulkan1 mesa-vulkan-drivers libegl1 libgl1 libglu1-mesa \
+# libgl1-mesa-dri mesa-utils vulkan-tools net-tools procps \
+# winbind samba-common-bin libnss-winbind
 
 # Install wine-8.0.2
 RUN \
  wget -qO - https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /usr/share/keyrings/winehq-archive-keyring.gpg && \
  dpkg --add-architecture i386 && \
  echo "deb [signed-by=/usr/share/keyrings/winehq-archive-keyring.gpg] https://dl.winehq.org/wine-builds/ubuntu/ jammy main" > /etc/apt/sources.list.d/winehq.list && \
+ add-apt-repository ppa:cybermax-dexter/sdl2-backport -y && \
  apt-get update && \
- apt-get -y install --install-recommends winehq-stable=8.0.2~jammy-1 wine-stable=8.0.2~jammy-1 wine-stable-amd64=8.0.2~jammy-1 wine-stable-i386=8.0.2~jammy-1
+ apt-get -y install --allow-unauthenticated --install-recommends winehq-stable
 
 # Install winetricks
 RUN \
