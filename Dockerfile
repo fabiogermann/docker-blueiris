@@ -30,6 +30,8 @@ RUN ln -fs /usr/share/zoneinfo/America/Montreal /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata
 
 COPY /root /
+RUN mkdir /opt/blueiris
+COPY /templates /opt/blueiris/
 
 RUN \
  wget -O /tmp/blueiris.exe https://blueirissoftware.com/blueiris.exe

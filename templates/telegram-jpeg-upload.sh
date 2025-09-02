@@ -4,7 +4,8 @@
 
 sleep 10
 
-PIC_FOLDER=${HOME}/.wine/drive_c/BlueIris/Alert-JPEG-Export
+PIC_FOLDER=/mnt/x/BlueIris/Alert-JPEG-Export
+PIC_FOLDER=${HOME}/.wine/drive_x/BlueIris/Alert-JPEG-Export
 LATEST_IMAGE=$(find ${PIC_FOLDER} -type f -exec stat -c '%X %n' {} \; | sort -nr | awk 'NR==1,NR==3 {print $2}' | head -n1)
 
 CHAT_ID="TELEGRAM_CHAT_ID_STARTS_WITH_MINUS"

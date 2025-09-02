@@ -23,6 +23,14 @@ if [ ! -d "${BLUEIRIS_INSTALL_PATH}" ]; then
 	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v Description /t REG_SZ /d "Video security software" /f
 	wine reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\BlueIris" /v FailureActions /t REG_BINARY  /d "00000000000000000000000003000000140000000000000060ea00000000000060ea00000000000060ea0000" /f
 
+	# Install templates
+	mkdir /config/.wine/drive_c/BlueIris/Telegram-Upload
+	cp /opt/blueiris/telegram-gif-upload.cmd /config/.wine/drive_c/BlueIris/Telegram-Upload/gifupload.cmd
+	cp /opt/blueiris/telegram-gif-upload.sh /config/.wine/drive_c/BlueIris/Telegram-Upload/gifupload.sh
+	cp /opt/blueiris/telegram-jpeg-upload.cmd /config/.wine/drive_c/BlueIris/Telegram-Upload/jpegupload.cmd
+	cp /opt/blueiris/telegram-jpeg-upload.sh /config/.wine/drive_c/BlueIris/Telegram-Upload/jpegupload.sh
+	chmod +x /config/.wine/drive_c/BlueIris/Telegram-Upload/jpegupload.sh /config/.wine/drive_c/BlueIris/Telegram-Upload/gifupload.sh
+
 	# Install Blue Iris 5
 	#msiexec /i /tmp/Blue\ Iris.msi /qn SETUPEXEDIR=%cd%
 	wine /tmp/blueiris.exe
